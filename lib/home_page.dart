@@ -100,24 +100,28 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.blue,
         ),
         body: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.96),
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: loanSection(labelDownAmount, labelLoanAmount),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: detailSection(),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: outputSection(loanAmount),
-                ),
-              ],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.95,
+                maxWidth: MediaQuery.of(context).size.width * 0.95,
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: loanSection(labelDownAmount, labelLoanAmount),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: detailSection(),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: outputSection(loanAmount),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

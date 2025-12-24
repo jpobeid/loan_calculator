@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:loan_calculator/amortization.dart';
+import 'package:loan_calculator/amortization_page.dart';
 
 void formatTextToInt(String value, TextEditingController controller) {
   final String sanitizedValue = value.replaceAll(',', '').replaceAll('.', '');
@@ -328,7 +328,7 @@ class InfoDialog extends StatelessWidget {
             } else {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => Amortization(
+                  builder: (context) => AmortizationPage(
                     sequenceDP: sequenceDP,
                     sequenceDI: sequenceDI,
                   ),
