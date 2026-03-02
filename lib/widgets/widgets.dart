@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:loan_calculator/amortization_page.dart';
+import 'package:loan_calculator/pages/amortization_page.dart';
 
 void formatTextToInt(String value, TextEditingController controller) {
   final String sanitizedValue = value.replaceAll(',', '').replaceAll('.', '');
