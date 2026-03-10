@@ -3,8 +3,8 @@ enum Frequency {
   quarterly('Quarterly', 3),
   annually('Annually', 12);
 
-  final String frequency;
+  final String label;
   final int divisorToMonthly;
 
-  const Frequency(this.frequency, this.divisorToMonthly);
+  const Frequency(this.label, this.divisorToMonthly);
 }

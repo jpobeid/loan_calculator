@@ -6,9 +6,9 @@ class Price {
   final int price;
   final int downInputted;
   final bool isDownInputtedPercentage;
-  late int downDollar;
-  late int downPercent;
-  late int cost;
+  int? downDollar;
+  int? downPercent;
+  int? cost;
   String labelDownAmount = 'Down amount: N/A';
   String labelCostAmount = 'Cost amount: N/A';
 
@@ -25,12 +25,17 @@ class Price {
         downDollar = downInputted;
         downPercent = ((downInputted / price) * 100).round();
       }
-      cost = price - downDollar;
+      cost = price - downDollar!;
       labelDownAmount =
           'Down amount ${isDownInputtedPercentage ? '\$' : '%'}: ${isDownInputtedPercentage ? NumberFormat('#,###').format(downDollar) : downPercent}';
       labelCostAmount = 'Cost amount \$: ${NumberFormat('#,###').format(cost)}';
     }
   }
+
+  Price.zero()
+      : price = 0,
+        downInputted = 0,
+        isDownInputtedPercentage = true;
 
   factory Price.fromControllers({
     required TextEditingController controllerPrice,
@@ -46,11 +51,7 @@ class Price {
         isDownInputtedPercentage: isDownPercentage,
       );
     } else {
-      return Price(
-        price: 0,
-        downInputted: 0,
-        isDownInputtedPercentage: isDownPercentage,
-      );
+      return Price.zero();
     }
   }
 

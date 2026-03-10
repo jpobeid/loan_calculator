@@ -3,14 +3,10 @@ import 'package:loan_calculator/models/price.dart';
 import 'package:loan_calculator/widgets/widgets.dart';
 
 class FormPrice extends StatefulWidget {
-  final TextEditingController controllerPrice;
-  final TextEditingController controllerDown;
   final void Function(Price price) onUpdatePrice;
 
   const FormPrice({
     super.key,
-    required this.controllerPrice,
-    required this.controllerDown,
     required this.onUpdatePrice,
   });
 
@@ -19,20 +15,45 @@ class FormPrice extends StatefulWidget {
 }
 
 class _FormPriceState extends State<FormPrice> {
+  final TextEditingController _controllerPrice =
+      TextEditingController(text: '0');
+  final TextEditingController _controllerDown =
+      TextEditingController(text: '0');
   bool _isDownPercentage = true;
 
   @override
+  void dispose() {
+    List<TextEditingController> controllers = [
+      _controllerPrice,
+      _controllerDown,
+    ];
+    for (TextEditingController e in controllers) {
+      e.dispose();
+    }
+    super.dispose();
+  }
+
+  void _resetState() {
+    _controllerPrice.text = '0';
+    _controllerDown.text = '0';
+    _isDownPercentage = true;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print('in form price');
     Price price = Price.fromControllers(
-      controllerPrice: widget.controllerPrice,
-      controllerDown: widget.controllerDown,
+      controllerPrice: _controllerPrice,
+      controllerDown: _controllerDown,
       isDownPercentage: _isDownPercentage,
     );
+    print(price.price);
+    print(price.cost);
 
     return Column(
       children: [
         LabelledRow(
-            label: 'Price', maxLength: 10, controller: widget.controllerPrice),
+            label: 'Price', maxLength: 10, controller: _controllerPrice),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -41,35 +62,35 @@ class _FormPriceState extends State<FormPrice> {
               child: LabelledRow(
                   label: 'Down',
                   maxLength: _isDownPercentage ? 3 : 10,
-                  controller: widget.controllerDown),
+                  controller: _controllerDown),
             ),
             Expanded(
               flex: 1,
               child: Center(
                 child: DropdownButton(
                   dropdownColor: Colors.yellow[50],
-                  value: _isDownPercentage ? 0 : 1,
+                  value: _isDownPercentage,
                   items: [
                     DropdownMenuItem(
-                      value: 0,
+                      value: true,
                       child: Text(
                         '%',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                     DropdownMenuItem(
-                      value: 1,
+                      value: false,
                       child: Text(
                         '\$',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ],
-                  onChanged: (value) {
+                  onChanged: (bool? value) {
                     if (value != null) {
                       setState(() {
-                        widget.controllerDown.text = '0';
-                        _isDownPercentage = value == 0;
+                        _controllerDown.text = '0';
+                        _isDownPercentage = value;
                       });
                     }
                   },
@@ -99,7 +120,9 @@ class _FormPriceState extends State<FormPrice> {
               flex: 1,
               child: IconButton(
                 onPressed: () {
+                  print('pressing button');
                   if (price.isValid()) {
+                    print(price.toString());
                     widget.onUpdatePrice(price);
                   }
                 },

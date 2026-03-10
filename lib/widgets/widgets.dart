@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:loan_calculator/data/constants.dart';
 import 'package:loan_calculator/pages/amortization_page.dart';
 
 void formatTextToInt(String value, TextEditingController controller) {
@@ -124,7 +125,7 @@ class InputRow extends StatelessWidget {
   final bool formatToInt;
   final bool selectableFrequency;
   final bool? hasQuarterly;
-  final int? dropdownValue;
+  final Frequency? dropdownValue;
   final Function? callback;
 
   const InputRow({
@@ -145,16 +146,16 @@ class InputRow extends StatelessWidget {
     if (selectableFrequency) {
       dropdownItems = [
         DropdownMenuItem(
-          value: 0,
+          value: Frequency.monthly,
           child: Text(
-            'monthly',
+            Frequency.monthly.label,
             style: Theme.of(context).textTheme.labelSmall,
           ),
         ),
         DropdownMenuItem(
-          value: 1,
+          value: Frequency.annually,
           child: Text(
-            'yearly',
+            Frequency.annually.label,
             style: Theme.of(context).textTheme.labelSmall,
           ),
         ),
@@ -162,9 +163,9 @@ class InputRow extends StatelessWidget {
       if (hasQuarterly != null) {
         if (hasQuarterly!) {
           dropdownItems.add(DropdownMenuItem(
-            value: 2,
+            value: Frequency.quarterly,
             child: Text(
-              'quarterly',
+              Frequency.quarterly.label,
               style: Theme.of(context).textTheme.labelSmall,
             ),
           ));

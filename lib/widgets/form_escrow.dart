@@ -1,34 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:loan_calculator/data/constants.dart';
+import 'package:loan_calculator/models/escrow.dart';
+import 'package:loan_calculator/models/loan.dart';
+import 'package:loan_calculator/models/price.dart';
 import 'package:loan_calculator/widgets/widgets.dart';
 
 class FormEscrow extends StatefulWidget {
-  final TextEditingController controllerTerm;
-  final TextEditingController controllerRate;
-  final TextEditingController controllerTax;
-  final TextEditingController controllerInsurance;
-  final TextEditingController controllerHoa;
-  final TextEditingController controllerPmi;
-  final int frequencyTax;
-  final int frequencyInsurance;
-  final int frequencyHoa;
-  final void Function({
-    required int frequencyTax,
-    required int frequencyInsurance,
-    required int frequencyHoa,
-  }) onUpdateFrequencies;
+  final Price price;
 
   const FormEscrow({
     super.key,
-    required this.controllerTerm,
-    required this.controllerRate,
-    required this.controllerTax,
-    required this.controllerInsurance,
-    required this.controllerHoa,
-    required this.controllerPmi,
-    required this.frequencyTax,
-    required this.frequencyInsurance,
-    required this.frequencyHoa,
-    required this.onUpdateFrequencies,
+    required this.price,
   });
 
   @override
@@ -36,82 +18,114 @@ class FormEscrow extends StatefulWidget {
 }
 
 class _FormEscrowState extends State<FormEscrow> {
-  //### Need to make a escrow from controllers and return this instead of separate frequencies...
+  final TextEditingController _controllerTerm =
+      TextEditingController(text: '360');
+  final TextEditingController _controllerRate =
+      TextEditingController(text: '0');
+  final TextEditingController _controllerTax = TextEditingController(text: '0');
+  final TextEditingController _controllerInsurance =
+      TextEditingController(text: '0');
+  final TextEditingController _controllerHoa = TextEditingController(text: '0');
+  final TextEditingController _controllerPmi = TextEditingController(text: '0');
+  Frequency _frequencyTax = Frequency.monthly;
+  Frequency _frequencyInsurance = Frequency.monthly;
+  Frequency _frequencyHoa = Frequency.monthly;
+
+  @override
+  void dispose() {
+    List<TextEditingController> controllers = [
+      _controllerTerm,
+      _controllerRate,
+      _controllerTax,
+      _controllerInsurance,
+      _controllerHoa,
+      _controllerPmi,
+    ];
+    for (TextEditingController e in controllers) {
+      e.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    Loan loan = Loan.fromControllers(
+      principal: widget.price.cost!,
+      controllerRate: _controllerRate,
+      controllerTerm: _controllerTerm,
+    );
+    Escrow escrow = Escrow.fromControllers(
+      controllerTax: _controllerTax,
+      controllerInsurance: _controllerInsurance,
+      controllerHoa: _controllerHoa,
+      controllerPmi: _controllerPmi,
+      frequencyTax: _frequencyTax,
+      frequencyInsurance: _frequencyInsurance,
+      frequencyHoa: _frequencyHoa,
+    );
+    print(loan.toString());
+    print(escrow.toString());
+
     return Column(
       children: [
         InputRow(
           label: 'Loan term [months]',
           maxLength: 3,
-          controller: widget.controllerTerm,
+          controller: _controllerTerm,
           formatToInt: true,
           selectableFrequency: false,
         ),
         InputRow(
           label: 'Interest rate [annual %]',
           maxLength: 6,
-          controller: widget.controllerRate,
+          controller: _controllerRate,
           formatToInt: false,
           selectableFrequency: false,
         ),
         InputRow(
           label: 'Property tax [\$]',
           maxLength: 7,
-          controller: widget.controllerTax,
+          controller: _controllerTax,
           formatToInt: true,
           selectableFrequency: true,
-          dropdownValue: widget.frequencyTax,
-          callback: (int value) {
+          dropdownValue: _frequencyTax,
+          callback: (Frequency value) {
             setState(() {
-              widget.onUpdateFrequencies(
-                frequencyTax: value,
-                frequencyInsurance: widget.frequencyInsurance,
-                frequencyHoa: widget.frequencyHoa,
-              );
+              _frequencyTax = value;
             });
           },
         ),
         InputRow(
           label: 'Insurance [\$]',
           maxLength: 7,
-          controller: widget.controllerInsurance,
+          controller: _controllerInsurance,
           formatToInt: true,
           selectableFrequency: true,
-          dropdownValue: widget.frequencyInsurance,
-          callback: (int value) {
+          dropdownValue: _frequencyInsurance,
+          callback: (Frequency value) {
             setState(() {
-              widget.onUpdateFrequencies(
-                frequencyTax: widget.frequencyTax,
-                frequencyInsurance: value,
-                frequencyHoa: widget.frequencyHoa,
-              );
+              _frequencyInsurance = value;
             });
           },
         ),
         InputRow(
           label: 'HOA [\$]',
           maxLength: 7,
-          controller: widget.controllerHoa,
+          controller: _controllerHoa,
           formatToInt: true,
           selectableFrequency: true,
           hasQuarterly: true,
-          dropdownValue: widget.frequencyHoa,
-          callback: (int value) {
+          dropdownValue: _frequencyHoa,
+          callback: (Frequency value) {
             setState(() {
-              widget.onUpdateFrequencies(
-                frequencyTax: widget.frequencyTax,
-                frequencyInsurance: widget.frequencyInsurance,
-                frequencyHoa: value,
-              );
+              _frequencyHoa = value;
             });
           },
         ),
         InputRow(
           label: 'Monthly PMI [\$]',
           maxLength: 7,
-          controller: widget.controllerPmi,
+          controller: _controllerPmi,
           formatToInt: true,
           selectableFrequency: false,
         ),
