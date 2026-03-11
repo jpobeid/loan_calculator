@@ -2,38 +2,39 @@ import 'dart:math' as maths;
 
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/functions/validators.dart';
+import 'package:loan_calculator/models/escrow.dart';
 
 @immutable
 class Loan {
   final int principal;
   final double rate;
   final int term;
+  final Escrow escrow;
 
   const Loan({
     required this.principal,
     required this.rate,
     required this.term,
+    required this.escrow,
   });
 
   factory Loan.fromControllers({
     required int principal,
     required TextEditingController controllerRate,
     required TextEditingController controllerTerm,
+    required Escrow escrow,
   }) {
-    double? rate = validateInputDouble(controllerRate.text);
+    double? ratePercent = validateInputDouble(controllerRate.text);
     int? term = validateInputInt(controllerTerm.text);
-    if (rate != null && term != null) {
+    if (ratePercent != null && term != null) {
       return Loan(
         principal: principal,
-        rate: rate,
+        rate: ratePercent / 100,
         term: term,
+        escrow: escrow,
       );
     } else {
-      return Loan(
-        principal: principal,
-        rate: 0,
-        term: 0,
-      );
+      throw Error();
     }
   }
 
@@ -66,5 +67,37 @@ class Loan {
       sequenceDP.add(sequenceP[i - 1] - sequenceP[i]);
     }
     return sequenceDP;
+  }
+
+  List<double> getSequenceDI() {
+    double Q = computeQ();
+    List<double> sequenceDI = getSequenceDP().map((e) => Q - e).toList();
+    return sequenceDI;
+  }
+
+  double getMonthlyPayment() {
+    double Q = computeQ();
+    double qTaxMonthly = escrow.tax / escrow.frequencyTax.divisorToMonthly;
+    double qInsuranceMonthly =
+        escrow.insurance / escrow.frequencyInsurance.divisorToMonthly;
+    double qHoaMonthly = escrow.hoa / escrow.frequencyHoa.divisorToMonthly;
+
+    double payment =
+        Q + qTaxMonthly + qInsuranceMonthly + qHoaMonthly + escrow.pmi;
+    return double.parse(payment.toStringAsFixed(2));
+  }
+
+  double getTotalPI() {
+    double Q = computeQ();
+    return Q * term;
+  }
+
+  double getTotalInterest() {
+    double totalPI = getTotalPI();
+    return totalPI - principal;
+  }
+
+  bool isValid() {
+    return (rate > 0 && rate < 0.5 && term > 12);
   }
 }

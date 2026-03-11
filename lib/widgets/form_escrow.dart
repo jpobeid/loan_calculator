@@ -7,10 +7,12 @@ import 'package:loan_calculator/widgets/widgets.dart';
 
 class FormEscrow extends StatefulWidget {
   final Price price;
+  final void Function(Loan loan) onUpdateLoan;
 
   const FormEscrow({
     super.key,
     required this.price,
+    required this.onUpdateLoan,
   });
 
   @override
@@ -49,23 +51,6 @@ class _FormEscrowState extends State<FormEscrow> {
 
   @override
   Widget build(BuildContext context) {
-    Loan loan = Loan.fromControllers(
-      principal: widget.price.cost!,
-      controllerRate: _controllerRate,
-      controllerTerm: _controllerTerm,
-    );
-    Escrow escrow = Escrow.fromControllers(
-      controllerTax: _controllerTax,
-      controllerInsurance: _controllerInsurance,
-      controllerHoa: _controllerHoa,
-      controllerPmi: _controllerPmi,
-      frequencyTax: _frequencyTax,
-      frequencyInsurance: _frequencyInsurance,
-      frequencyHoa: _frequencyHoa,
-    );
-    print(loan.toString());
-    print(escrow.toString());
-
     return Column(
       children: [
         InputRow(
@@ -128,6 +113,32 @@ class _FormEscrowState extends State<FormEscrow> {
           controller: _controllerPmi,
           formatToInt: true,
           selectableFrequency: false,
+        ),
+        IconButton(
+          onPressed: () {
+            Escrow escrow = Escrow.fromControllers(
+              controllerTax: _controllerTax,
+              controllerInsurance: _controllerInsurance,
+              controllerHoa: _controllerHoa,
+              controllerPmi: _controllerPmi,
+              frequencyTax: _frequencyTax,
+              frequencyInsurance: _frequencyInsurance,
+              frequencyHoa: _frequencyHoa,
+            );
+            Loan loan = Loan.fromControllers(
+              principal: widget.price.cost!,
+              controllerRate: _controllerRate,
+              controllerTerm: _controllerTerm,
+              escrow: escrow,
+            );
+            if (loan.isValid()) {
+              widget.onUpdateLoan(loan);
+            }
+          },
+          icon: const Icon(
+            Icons.check_circle,
+            color: Colors.green,
+          ),
         ),
       ],
     );

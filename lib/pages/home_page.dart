@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loan_calculator/models/loan.dart';
 import 'package:loan_calculator/models/price.dart';
 import 'package:loan_calculator/widgets/form_escrow.dart';
 import 'package:loan_calculator/widgets/form_price.dart';
@@ -12,18 +13,43 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final TextEditingController _controllerPrice =
+      TextEditingController(text: '0');
+  final TextEditingController _controllerDown =
+      TextEditingController(text: '0');
   Price? _price;
+  Loan? _loan;
+
+  @override
+  void dispose() {
+    _controllerPrice.dispose();
+    _controllerDown.dispose();
+    super.dispose();
+  }
 
   void _resetState() {
-    setState(() {
-      _price = null;
-    });
+    if (_loan == null) {
+      setState(() {
+        _controllerPrice.text = '0';
+        _controllerDown.text = '0';
+        _price = null;
+      });
+    } else {
+      setState(() {
+        _loan = null;
+      });
+    }
   }
 
   void _updatePrice(Price price) {
-    print('here');
     setState(() {
       _price = price;
+    });
+  }
+
+  void _updateLoan(Loan loan) {
+    setState(() {
+      _loan = loan;
     });
   }
 
@@ -60,6 +86,8 @@ class _HomePageState extends State<HomePage> {
                       ignoring: _price != null,
                       child: FormPrice(
                         onUpdatePrice: _updatePrice,
+                        controllerPrice: _controllerPrice,
+                        controllerDown: _controllerDown,
                       ),
                     ),
                   ),
@@ -67,14 +95,21 @@ class _HomePageState extends State<HomePage> {
                     flex: 2,
                     child: _price == null
                         ? Container()
-                        : FormEscrow(
-                            price: _price!,
+                        : IgnorePointer(
+                            ignoring: _loan != null,
+                            child: FormEscrow(
+                              price: _price!,
+                              onUpdateLoan: _updateLoan,
+                            ),
                           ),
                   ),
                   Expanded(
                     flex: 1,
-                    child:
-                        _price == null ? Container() : const SectionResults(),
+                    child: _loan == null
+                        ? Container()
+                        : SectionResults(
+                            loan: _loan!,
+                          ),
                   ),
                 ],
               ),
