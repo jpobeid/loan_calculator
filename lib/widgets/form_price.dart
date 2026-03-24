@@ -5,7 +5,7 @@ import 'package:loan_calculator/widgets/widgets.dart';
 class FormPrice extends StatefulWidget {
   final TextEditingController controllerPrice;
   final TextEditingController controllerDown;
-  final void Function(Price price) onUpdatePrice;
+  final void Function(Price? price) onUpdatePrice;
 
   const FormPrice({
     super.key,
@@ -22,34 +22,55 @@ class _FormPriceState extends State<FormPrice> {
   bool _isDownPercentage = true;
   late Price _price;
 
-  @override
-  void initState() {
-    super.initState();
-    widget.controllerPrice.addListener(() => setState(() {}));
-    widget.controllerDown.addListener(() => setState(() {}));
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  void _updatePrice() {
     _price = Price.fromControllers(
       controllerPrice: widget.controllerPrice,
       controllerDown: widget.controllerDown,
       isDownPercentage: _isDownPercentage,
     );
+    if (_price.isValid() && _price.cost != null && _price.cost! > 0) {
+      widget.onUpdatePrice(_price);
+    } else {
+      _price = Price.zero();
+      widget.onUpdatePrice(null);
+    }
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    _price = Price.fromControllers(
+      controllerPrice: widget.controllerPrice,
+      controllerDown: widget.controllerDown,
+      isDownPercentage: _isDownPercentage,
+    );
+    widget.controllerPrice.addListener(() => setState(() {
+          _updatePrice();
+        }));
+    widget.controllerDown.addListener(() => setState(() {
+          _updatePrice();
+        }));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         LabelledRow(
-            label: 'Price', maxLength: 10, controller: widget.controllerPrice),
+          label: 'Price',
+          maxLength: 10,
+          controller: widget.controllerPrice,
+        ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 4,
               child: LabelledRow(
-                  label: 'Down',
-                  maxLength: _isDownPercentage ? 2 : 10,
-                  controller: widget.controllerDown),
+                label: 'Down',
+                maxLength: _isDownPercentage ? 2 : 10,
+                controller: widget.controllerDown,
+              ),
             ),
             Expanded(
               flex: 1,
@@ -87,35 +108,19 @@ class _FormPriceState extends State<FormPrice> {
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Text(
-                    _price.labelDownAmount,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Text(
-                    _price.labelCostAmount,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: IconButton(
-                onPressed: () {
-                  if (_price.isValid()) {
-                    widget.onUpdatePrice(_price);
-                  }
-                },
-                icon: const Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
+            Column(
+              children: [
+                Text(
+                  _price.labelDownAmount,
+                  style: const TextStyle(fontSize: 20),
                 ),
-              ),
+                Text(
+                  _price.labelCostAmount,
+                  style: const TextStyle(fontSize: 20, color: Colors.red),
+                ),
+              ],
             ),
           ],
         ),

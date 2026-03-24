@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _updatePrice(Price price) {
+  void _updatePrice(Price? price) {
     setState(() {
       _price = price;
     });
