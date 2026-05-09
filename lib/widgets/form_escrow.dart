@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_calculator/data/constants.dart';
-import 'package:loan_calculator/models/escrow.dart';
-import 'package:loan_calculator/models/loan.dart';
-import 'package:loan_calculator/models/price.dart';
+import 'package:loan_calculator/providers/escrow_provider.dart';
 import 'package:loan_calculator/widgets/widgets.dart';
 
-class FormEscrow extends StatefulWidget {
-  final Price price;
-  final void Function(Loan loan) onUpdateLoan;
-
+class FormEscrow extends ConsumerStatefulWidget {
   const FormEscrow({
     super.key,
-    required this.price,
-    required this.onUpdateLoan,
   });
 
   @override
-  State<FormEscrow> createState() => _FormEscrowState();
+  ConsumerState<FormEscrow> createState() => _FormEscrowState();
 }
 
-class _FormEscrowState extends State<FormEscrow> {
+class _FormEscrowState extends ConsumerState<FormEscrow> {
   final TextEditingController _controllerTerm =
       TextEditingController(text: '360');
   final TextEditingController _controllerRate =
@@ -29,13 +23,15 @@ class _FormEscrowState extends State<FormEscrow> {
       TextEditingController(text: '0');
   final TextEditingController _controllerHoa = TextEditingController(text: '0');
   final TextEditingController _controllerPmi = TextEditingController(text: '0');
+  late List<TextEditingController> _controllers;
   Frequency _frequencyTax = Frequency.monthly;
   Frequency _frequencyInsurance = Frequency.monthly;
   Frequency _frequencyHoa = Frequency.monthly;
 
   @override
-  void dispose() {
-    List<TextEditingController> controllers = [
+  void initState() {
+    super.initState();
+    _controllers = [
       _controllerTerm,
       _controllerRate,
       _controllerTax,
@@ -43,7 +39,24 @@ class _FormEscrowState extends State<FormEscrow> {
       _controllerHoa,
       _controllerPmi,
     ];
-    for (TextEditingController e in controllers) {
+    for (TextEditingController e in _controllers) {
+      e.addListener(() => setState(() {
+            ref.read(escrowNotifierProvider.notifier).updateFromControllers(
+                  controllerTax: _controllerTax,
+                  controllerInsurance: _controllerInsurance,
+                  controllerHoa: _controllerHoa,
+                  controllerPmi: _controllerPmi,
+                  frequencyTax: _frequencyTax,
+                  frequencyInsurance: _frequencyInsurance,
+                  frequencyHoa: _frequencyHoa,
+                );
+          }));
+    }
+  }
+
+  @override
+  void dispose() {
+    for (TextEditingController e in _controllers) {
       e.dispose();
     }
     super.dispose();
@@ -113,32 +126,6 @@ class _FormEscrowState extends State<FormEscrow> {
           controller: _controllerPmi,
           formatToInt: true,
           selectableFrequency: false,
-        ),
-        IconButton(
-          onPressed: () {
-            Escrow escrow = Escrow.fromControllers(
-              controllerTax: _controllerTax,
-              controllerInsurance: _controllerInsurance,
-              controllerHoa: _controllerHoa,
-              controllerPmi: _controllerPmi,
-              frequencyTax: _frequencyTax,
-              frequencyInsurance: _frequencyInsurance,
-              frequencyHoa: _frequencyHoa,
-            );
-            Loan loan = Loan.fromControllers(
-              principal: widget.price.cost!,
-              controllerRate: _controllerRate,
-              controllerTerm: _controllerTerm,
-              escrow: escrow,
-            );
-            if (loan.isValid()) {
-              widget.onUpdateLoan(loan);
-            }
-          },
-          icon: const Icon(
-            Icons.check_circle,
-            color: Colors.green,
-          ),
         ),
       ],
     );

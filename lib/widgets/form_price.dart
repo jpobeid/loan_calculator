@@ -1,65 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_calculator/models/price.dart';
+import 'package:loan_calculator/providers/price_provider.dart';
 import 'package:loan_calculator/widgets/widgets.dart';
 
-class FormPrice extends StatefulWidget {
-  final TextEditingController controllerPrice;
-  final TextEditingController controllerDown;
-  final void Function(Price? price) onUpdatePrice;
-
+class FormPrice extends ConsumerStatefulWidget {
   const FormPrice({
     super.key,
-    required this.controllerPrice,
-    required this.controllerDown,
-    required this.onUpdatePrice,
   });
 
   @override
-  State<FormPrice> createState() => _FormPriceState();
+  ConsumerState<FormPrice> createState() => _FormPriceState();
 }
 
-class _FormPriceState extends State<FormPrice> {
+class _FormPriceState extends ConsumerState<FormPrice> {
+  final TextEditingController _controllerPrice =
+      TextEditingController(text: '0');
+  final TextEditingController _controllerDown =
+      TextEditingController(text: '0');
+  late List<TextEditingController> _controllers;
   bool _isDownPercentage = true;
-  late Price _price;
-
-  void _updatePrice() {
-    _price = Price.fromControllers(
-      controllerPrice: widget.controllerPrice,
-      controllerDown: widget.controllerDown,
-      isDownPercentage: _isDownPercentage,
-    );
-    if (_price.isValid() && _price.cost != null && _price.cost! > 0) {
-      widget.onUpdatePrice(_price);
-    } else {
-      _price = Price.zero();
-      widget.onUpdatePrice(null);
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    _price = Price.fromControllers(
-      controllerPrice: widget.controllerPrice,
-      controllerDown: widget.controllerDown,
-      isDownPercentage: _isDownPercentage,
-    );
-    widget.controllerPrice.addListener(() => setState(() {
-          _updatePrice();
-        }));
-    widget.controllerDown.addListener(() => setState(() {
-          _updatePrice();
-        }));
+    _controllers = [
+      _controllerPrice,
+      _controllerDown,
+    ];
+    for (TextEditingController e in _controllers) {
+      e.addListener(() => setState(() {
+            ref.read(priceNotifierProvider.notifier).updateFromControllers(
+                  controllerPrice: _controllerDown,
+                  controllerDown: _controllerDown,
+                  isDownPercentage: _isDownPercentage,
+                );
+          }));
+    }
+  }
+
+  @override
+  void dispose() {
+    for (TextEditingController e in _controllers) {
+      e.dispose();
+    }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    Price price = ref.watch(priceNotifierProvider);
+
     return Column(
       children: [
         LabelledRow(
           label: 'Price',
           maxLength: 10,
-          controller: widget.controllerPrice,
+          controller: _controllerPrice,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,7 +66,7 @@ class _FormPriceState extends State<FormPrice> {
               child: LabelledRow(
                 label: 'Down',
                 maxLength: _isDownPercentage ? 2 : 10,
-                controller: widget.controllerDown,
+                controller: _controllerDown,
               ),
             ),
             Expanded(
@@ -97,7 +94,7 @@ class _FormPriceState extends State<FormPrice> {
                   onChanged: (bool? value) {
                     if (value != null) {
                       setState(() {
-                        widget.controllerDown.text = '0';
+                        _controllerDown.text = '0';
                         _isDownPercentage = value;
                       });
                     }
@@ -113,11 +110,11 @@ class _FormPriceState extends State<FormPrice> {
             Column(
               children: [
                 Text(
-                  _price.labelDownAmount,
+                  price.labelDownAmount,
                   style: const TextStyle(fontSize: 20),
                 ),
                 Text(
-                  _price.labelCostAmount,
+                  price.labelCostAmount,
                   style: const TextStyle(fontSize: 20, color: Colors.red),
                 ),
               ],

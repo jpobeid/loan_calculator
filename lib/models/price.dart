@@ -56,6 +56,11 @@ class Price {
   }
 
   bool isValid() {
-    return (price > 0 && downInputted > 0);
+    bool isPricePositive = price > 0;
+    bool isCostPositive = true;
+    if (!isDownInputtedPercentage) {
+      isCostPositive = (price - downInputted) > 0;
+    }
+    return (isPricePositive && isCostPositive);
   }
 }

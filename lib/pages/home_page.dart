@@ -1,60 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_calculator/models/escrow.dart';
 import 'package:loan_calculator/models/loan.dart';
 import 'package:loan_calculator/models/price.dart';
+import 'package:loan_calculator/providers/escrow_provider.dart';
+import 'package:loan_calculator/providers/price_provider.dart';
 import 'package:loan_calculator/widgets/form_escrow.dart';
 import 'package:loan_calculator/widgets/form_price.dart';
 import 'package:loan_calculator/widgets/section_results.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    Price price = ref.watch(priceNotifierProvider);
 
-class _HomePageState extends State<HomePage> {
-  final TextEditingController _controllerPrice =
-      TextEditingController(text: '0');
-  final TextEditingController _controllerDown =
-      TextEditingController(text: '0');
-  Price? _price;
-  Loan? _loan;
-
-  @override
-  void dispose() {
-    _controllerPrice.dispose();
-    _controllerDown.dispose();
-    super.dispose();
-  }
-
-  void _resetState() {
-    if (_loan == null) {
-      setState(() {
-        _controllerPrice.text = '0';
-        _controllerDown.text = '0';
-        _price = null;
-      });
-    } else {
-      setState(() {
-        _loan = null;
-      });
-    }
-  }
-
-  void _updatePrice(Price? price) {
-    setState(() {
-      _price = price;
-    });
-  }
-
-  void _updateLoan(Loan loan) {
-    setState(() {
-      _loan = loan;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -80,36 +41,44 @@ class _HomePageState extends State<HomePage> {
               ),
               child: Column(
                 children: [
-                  Expanded(
+                  const Expanded(
                     flex: 1,
-                    child: IgnorePointer(
-                      ignoring: _price != null,
-                      child: FormPrice(
-                        onUpdatePrice: _updatePrice,
-                        controllerPrice: _controllerPrice,
-                        controllerDown: _controllerDown,
-                      ),
-                    ),
+                    child: FormPrice(),
                   ),
                   Expanded(
                     flex: 2,
-                    child: _price == null
-                        ? Container()
-                        : IgnorePointer(
-                            ignoring: _loan != null,
-                            child: FormEscrow(
-                              price: _price!,
-                              onUpdateLoan: _updateLoan,
-                            ),
-                          ),
+                    child: price.isValid() ? const FormEscrow() : Container(),
                   ),
                   Expanded(
                     flex: 1,
-                    child: _loan == null
-                        ? Container()
-                        : SectionResults(
-                            loan: _loan!,
-                          ),
+                    child: Consumer(
+                      builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                        Escrow escrow = ref.read(escrowNotifierProvider);
+
+                        if (price.isValid()) {
+
+
+                        } else {
+                          return Container();
+                        }
+
+                        Loan loan = Loan.fromControllers(
+                          principal: price.cost!,
+                          controllerRate: _controllerRate,
+                          controllerTerm: _controllerTerm,
+                          escrow: escrow,
+                        );
+                        if (loan.isValid()) {
+                          widget.onUpdateLoan(loan);
+                        }
+
+                        return _loan == null
+                            ? Container()
+                            : SectionResults(
+                                loan: _loan!,
+                              );
+                      }
+                    ),
                   ),
                 ],
               ),
