@@ -1,37 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:loan_calculator/data/constants.dart';
 import 'package:loan_calculator/functions/validators.dart';
 
-@immutable
 class Terms {
-  final double rate;
   final int time;
+  final double ratePercent;
+  late double rate;
 
-  const Terms({
-    required this.rate,
+  Terms({
     required this.time,
-  });
+    required this.ratePercent,
+  }) {
+    rate = ratePercent / 100;
+  }
 
-  const Terms.zero()
-      : rate = 0,
-        time = 0;
+  Terms.initial()
+      : time = timeInitial,
+        ratePercent = ratePercentInitial,
+        rate = ratePercentInitial / 100;
 
   factory Terms.fromControllers({
-    required TextEditingController controllerRate,
     required TextEditingController controllerTime,
+    required TextEditingController controllerRatePercent,
   }) {
-    double? ratePercent = validateInputDouble(controllerRate.text);
     int? time = validateInputInt(controllerTime.text);
-    if (ratePercent != null && time != null) {
+    double? ratePercent = validateInputDouble(controllerRatePercent.text);
+
+    if (time != null && ratePercent != null) {
       return Terms(
-        rate: ratePercent / 100,
         time: time,
+        ratePercent: ratePercent,
       );
     } else {
-      return const Terms.zero();
+      return Terms.initial();
     }
   }
 
   bool isValid() {
-    return (rate > 0 && rate < 0.5 && time > 12);
+    return (time > timeMin &&
+        ratePercent > ratePercentMin &&
+        ratePercent <= ratePercentMax);
   }
 }

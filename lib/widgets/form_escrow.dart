@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_calculator/data/constants.dart';
+import 'package:loan_calculator/models/escrow.dart';
 import 'package:loan_calculator/providers/escrow_provider.dart';
-import 'package:loan_calculator/widgets/widgets.dart';
+import 'package:loan_calculator/widgets/input_widgets.dart';
 
 class FormEscrow extends ConsumerStatefulWidget {
   const FormEscrow({
@@ -14,26 +15,40 @@ class FormEscrow extends ConsumerStatefulWidget {
 }
 
 class _FormEscrowState extends ConsumerState<FormEscrow> {
-  final TextEditingController _controllerTerm =
-      TextEditingController(text: '360');
-  final TextEditingController _controllerRate =
-      TextEditingController(text: '0');
-  final TextEditingController _controllerTax = TextEditingController(text: '0');
-  final TextEditingController _controllerInsurance =
-      TextEditingController(text: '0');
-  final TextEditingController _controllerHoa = TextEditingController(text: '0');
-  final TextEditingController _controllerPmi = TextEditingController(text: '0');
+  final TextEditingController _controllerTax = TextEditingController();
+  final TextEditingController _controllerInsurance = TextEditingController();
+  final TextEditingController _controllerHoa = TextEditingController();
+  final TextEditingController _controllerPmi = TextEditingController();
   late List<TextEditingController> _controllers;
-  Frequency _frequencyTax = Frequency.monthly;
-  Frequency _frequencyInsurance = Frequency.monthly;
-  Frequency _frequencyHoa = Frequency.monthly;
+  late Frequency _frequencyTax;
+  late Frequency _frequencyInsurance;
+  late Frequency _frequencyHoa;
+
+  void _updateEscrowNotifier() {
+    ref.read(escrowNotifierProvider.notifier).updateFromControllers(
+          controllerTax: _controllerTax,
+          controllerInsurance: _controllerInsurance,
+          controllerHoa: _controllerHoa,
+          controllerPmi: _controllerPmi,
+          frequencyTax: _frequencyTax,
+          frequencyInsurance: _frequencyInsurance,
+          frequencyHoa: _frequencyHoa,
+        );
+  }
 
   @override
   void initState() {
     super.initState();
+    Escrow escrow = ref.read(escrowNotifierProvider);
+    _controllerTax.text = escrow.tax.toString();
+    _controllerInsurance.text = escrow.insurance.toString();
+    _controllerHoa.text = escrow.hoa.toString();
+    _controllerPmi.text = escrow.pmi.toString();
+    _frequencyTax = escrow.frequencyTax;
+    _frequencyInsurance = escrow.frequencyInsurance;
+    _frequencyHoa = escrow.frequencyHoa;
+
     _controllers = [
-      _controllerTerm,
-      _controllerRate,
       _controllerTax,
       _controllerInsurance,
       _controllerHoa,
@@ -41,15 +56,7 @@ class _FormEscrowState extends ConsumerState<FormEscrow> {
     ];
     for (TextEditingController e in _controllers) {
       e.addListener(() => setState(() {
-            ref.read(escrowNotifierProvider.notifier).updateFromControllers(
-                  controllerTax: _controllerTax,
-                  controllerInsurance: _controllerInsurance,
-                  controllerHoa: _controllerHoa,
-                  controllerPmi: _controllerPmi,
-                  frequencyTax: _frequencyTax,
-                  frequencyInsurance: _frequencyInsurance,
-                  frequencyHoa: _frequencyHoa,
-                );
+            _updateEscrowNotifier();
           }));
     }
   }
@@ -67,20 +74,6 @@ class _FormEscrowState extends ConsumerState<FormEscrow> {
     return Column(
       children: [
         InputRow(
-          label: 'Loan term [months]',
-          maxLength: 3,
-          controller: _controllerTerm,
-          formatToInt: true,
-          selectableFrequency: false,
-        ),
-        InputRow(
-          label: 'Interest rate [annual %]',
-          maxLength: 6,
-          controller: _controllerRate,
-          formatToInt: false,
-          selectableFrequency: false,
-        ),
-        InputRow(
           label: 'Property tax [\$]',
           maxLength: 7,
           controller: _controllerTax,
@@ -90,6 +83,7 @@ class _FormEscrowState extends ConsumerState<FormEscrow> {
           callback: (Frequency value) {
             setState(() {
               _frequencyTax = value;
+              _updateEscrowNotifier();
             });
           },
         ),
@@ -103,6 +97,7 @@ class _FormEscrowState extends ConsumerState<FormEscrow> {
           callback: (Frequency value) {
             setState(() {
               _frequencyInsurance = value;
+              _updateEscrowNotifier();
             });
           },
         ),
@@ -117,6 +112,7 @@ class _FormEscrowState extends ConsumerState<FormEscrow> {
           callback: (Frequency value) {
             setState(() {
               _frequencyHoa = value;
+              _updateEscrowNotifier();
             });
           },
         ),

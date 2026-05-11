@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loan_calculator/models/escrow.dart';
 import 'package:loan_calculator/models/loan.dart';
 import 'package:loan_calculator/models/price.dart';
+import 'package:loan_calculator/models/terms.dart';
 import 'package:loan_calculator/providers/escrow_provider.dart';
 import 'package:loan_calculator/providers/price_provider.dart';
+import 'package:loan_calculator/providers/terms_provider.dart';
 import 'package:loan_calculator/widgets/form_escrow.dart';
 import 'package:loan_calculator/widgets/form_price.dart';
+import 'package:loan_calculator/widgets/form_terms.dart';
 import 'package:loan_calculator/widgets/section_results.dart';
 
 class HomePage extends ConsumerWidget {
@@ -24,9 +27,13 @@ class HomePage extends ConsumerWidget {
           backgroundColor: Colors.blue,
           actions: [
             IconButton(
-              onPressed: _resetState,
+              onPressed: () {
+                ref.read(priceNotifierProvider.notifier).resetState();
+                ref.read(termsNotifierProvider.notifier).resetState();
+                ref.read(escrowNotifierProvider.notifier).resetState();
+              },
               icon: const Icon(
-                Icons.cancel_outlined,
+                Icons.restart_alt,
                 color: Colors.red,
               ),
             ),
@@ -47,39 +54,49 @@ class HomePage extends ConsumerWidget {
                   ),
                   Expanded(
                     flex: 2,
-                    child: price.isValid() ? const FormEscrow() : Container(),
+                    child: Consumer(
+                      builder:
+                          (BuildContext context, WidgetRef ref, Widget? child) {
+                        Terms terms = ref.watch(termsNotifierProvider);
+
+                        List<Widget> forms = [];
+                        if (price.isValid()) {
+                          forms.add(const FormTerms());
+                          if (terms.isValid()) {
+                            forms.add(const FormEscrow());
+                          }
+                        }
+                        if (forms.isEmpty) {
+                          return Container();
+                        } else {
+                          return Column(
+                            children: forms,
+                          );
+                        }
+                      },
+                    ),
                   ),
                   Expanded(
                     flex: 1,
                     child: Consumer(
-                      builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                        Escrow escrow = ref.read(escrowNotifierProvider);
+                      builder:
+                          (BuildContext context, WidgetRef ref, Widget? child) {
+                        Terms terms = ref.watch(termsNotifierProvider);
+                        Escrow escrow = ref.watch(escrowNotifierProvider);
 
-                        if (price.isValid()) {
-
-
+                        if (price.isValid() && terms.isValid()) {
+                          Loan loan = Loan(
+                            principal: price.cost!,
+                            terms: terms,
+                            escrow: escrow,
+                          );
+                          return SectionResults(loan: loan);
                         } else {
                           return Container();
                         }
-
-                        Loan loan = Loan.fromControllers(
-                          principal: price.cost!,
-                          controllerRate: _controllerRate,
-                          controllerTerm: _controllerTerm,
-                          escrow: escrow,
-                        );
-                        if (loan.isValid()) {
-                          widget.onUpdateLoan(loan);
-                        }
-
-                        return _loan == null
-                            ? Container()
-                            : SectionResults(
-                                loan: _loan!,
-                              );
-                      }
+                      },
                     ),
-                  ),
+                  )
                 ],
               ),
             ),

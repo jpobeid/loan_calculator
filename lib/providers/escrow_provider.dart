@@ -6,7 +6,11 @@ import 'package:loan_calculator/models/escrow.dart';
 class EscrowNotifier extends Notifier<Escrow> {
   @override
   Escrow build() {
-    return const Escrow.zero();
+    return Escrow.initial();
+  }
+
+  void resetState() {
+    state = Escrow.initial();
   }
 
   void updateFromControllers({

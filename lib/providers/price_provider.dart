@@ -5,7 +5,11 @@ import 'package:loan_calculator/models/price.dart';
 class PriceNotifier extends Notifier<Price> {
   @override
   Price build() {
-    return Price.zero();
+    return Price.initial();
+  }
+
+  void resetState() {
+    state = Price.initial();
   }
 
   void updateFromControllers({

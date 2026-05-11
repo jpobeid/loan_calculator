@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loan_calculator/data/constants.dart';
 import 'package:loan_calculator/models/price.dart';
 import 'package:loan_calculator/providers/price_provider.dart';
-import 'package:loan_calculator/widgets/widgets.dart';
+import 'package:loan_calculator/widgets/input_widgets.dart';
 
 class FormPrice extends ConsumerStatefulWidget {
   const FormPrice({
@@ -15,9 +16,9 @@ class FormPrice extends ConsumerStatefulWidget {
 
 class _FormPriceState extends ConsumerState<FormPrice> {
   final TextEditingController _controllerPrice =
-      TextEditingController(text: '0');
+      TextEditingController(text: priceInitial.toString());
   final TextEditingController _controllerDown =
-      TextEditingController(text: '0');
+      TextEditingController(text: downInputtedInitial.toString());
   late List<TextEditingController> _controllers;
   bool _isDownPercentage = true;
 
@@ -31,7 +32,7 @@ class _FormPriceState extends ConsumerState<FormPrice> {
     for (TextEditingController e in _controllers) {
       e.addListener(() => setState(() {
             ref.read(priceNotifierProvider.notifier).updateFromControllers(
-                  controllerPrice: _controllerDown,
+                  controllerPrice: _controllerPrice,
                   controllerDown: _controllerDown,
                   isDownPercentage: _isDownPercentage,
                 );
@@ -94,7 +95,7 @@ class _FormPriceState extends ConsumerState<FormPrice> {
                   onChanged: (bool? value) {
                     if (value != null) {
                       setState(() {
-                        _controllerDown.text = '0';
+                        _controllerDown.text = downInputtedInitial.toString();
                         _isDownPercentage = value;
                       });
                     }

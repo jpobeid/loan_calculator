@@ -22,14 +22,14 @@ class Escrow {
     required this.frequencyHoa,
   });
 
-  const Escrow.zero()
-      : tax = 0,
-        insurance = 0,
-        hoa = 0,
-        pmi = 0,
-        frequencyTax = Frequency.monthly,
-        frequencyInsurance = Frequency.monthly,
-        frequencyHoa = Frequency.monthly;
+  Escrow.initial()
+      : tax = taxInitial,
+        insurance = insuranceInitial,
+        hoa = hoaInitial,
+        pmi = pmiInitial,
+        frequencyTax = frequencyTaxInitial,
+        frequencyInsurance = frequencyInsuranceInitial,
+        frequencyHoa = frequencyHoaInitial;
 
   factory Escrow.fromControllers({
     required TextEditingController controllerTax,
@@ -54,7 +54,7 @@ class Escrow {
           frequencyInsurance: frequencyInsurance,
           frequencyHoa: frequencyHoa);
     } else {
-      return const Escrow.zero();
+      return Escrow.initial();
     }
   }
 }

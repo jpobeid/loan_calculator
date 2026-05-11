@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/models/loan.dart';
-import 'package:loan_calculator/widgets/widgets.dart';
+import 'package:loan_calculator/widgets/output_widgets.dart';
 
 class SectionResults extends StatelessWidget {
   final Loan loan;

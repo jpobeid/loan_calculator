@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:loan_calculator/data/constants.dart';
 import 'package:loan_calculator/functions/validators.dart';
 
 class Price {
@@ -32,10 +33,10 @@ class Price {
     }
   }
 
-  Price.zero()
-      : price = 0,
-        downInputted = 0,
-        isDownInputtedPercentage = true;
+  Price.initial()
+      : price = priceInitial,
+        downInputted = downInputtedInitial,
+        isDownInputtedPercentage = isDownInputtedPercentageInitial;
 
   factory Price.fromControllers({
     required TextEditingController controllerPrice,
@@ -51,7 +52,7 @@ class Price {
         isDownInputtedPercentage: isDownPercentage,
       );
     } else {
-      return Price.zero();
+      return Price.initial();
     }
   }
 
