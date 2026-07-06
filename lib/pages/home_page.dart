@@ -48,12 +48,15 @@ class HomePage extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  const Expanded(
+                  const Spacer(
                     flex: 1,
+                  ),
+                  const Expanded(
+                    flex: 5,
                     child: FormPrice(),
                   ),
                   Expanded(
-                    flex: 2,
+                    flex: 10,
                     child: Consumer(
                       builder:
                           (BuildContext context, WidgetRef ref, Widget? child) {
@@ -77,7 +80,7 @@ class HomePage extends ConsumerWidget {
                     ),
                   ),
                   Expanded(
-                    flex: 1,
+                    flex: 5,
                     child: Consumer(
                       builder:
                           (BuildContext context, WidgetRef ref, Widget? child) {

@@ -61,7 +61,7 @@ class InfoDialog extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Payments too low (rounding errors)'),
-                  duration: Duration(milliseconds: 500),
+                  duration: Duration(milliseconds: 1000),
                 ),
               );
             } else {

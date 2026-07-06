@@ -37,7 +37,6 @@ class OutputColumn extends StatelessWidget {
         IconButton(
           icon: const Icon(
             Icons.info_outline,
-            size: 28,
             color: Colors.purple,
           ),
           onPressed: () {

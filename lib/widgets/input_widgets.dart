@@ -33,50 +33,6 @@ void formatTextToDouble(String value, TextEditingController controller) {
   );
 }
 
-class LabelledRow extends StatelessWidget {
-  final String label;
-  final int maxLength;
-  final TextEditingController controller;
-
-  const LabelledRow(
-      {super.key,
-      required this.label,
-      required this.maxLength,
-      required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-            flex: 1,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium,
-            )),
-        Expanded(
-          flex: 1,
-          child: TextField(
-            decoration: const InputDecoration(
-              counterText: '',
-              isDense: true,
-              isCollapsed: true,
-            ),
-            controller: controller,
-            keyboardType: TextInputType.number,
-            maxLength: maxLength,
-            style: Theme.of(context).textTheme.bodyMedium,
-            onChanged: (value) {
-              formatTextToInt(value, controller);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class InputField extends StatelessWidget {
   final String label;
   final int maxLength;

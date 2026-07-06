@@ -54,20 +54,22 @@ class _FormPriceState extends ConsumerState<FormPrice> {
 
     return Column(
       children: [
-        LabelledRow(
+        InputField(
           label: 'Price',
           maxLength: 10,
           controller: _controllerPrice,
+          formatToInt: true,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 4,
-              child: LabelledRow(
+              child: InputField(
                 label: 'Down',
                 maxLength: _isDownPercentage ? 2 : 10,
                 controller: _controllerDown,
+                formatToInt: true,
               ),
             ),
             Expanded(
